@@ -1,16 +1,18 @@
-// Incomplete // 
 function selectionSort() {
   const array = [ 10, 9, 7, 4, 1 ]
 
-  for(let i = 0; i < array.length; i++) { 
-    for(let j = array.length - 1; j > i; j--) {
-      if(array[j] < array[i]) 
-        array[i] = array[j] 
+  let a, b, c
+  for(let a = 0; a < array.length-1; a++) {
+    for(let b = a; b <= array.length; b++) {
+      if(array[a] > array[b]) {
+        c = array[a]
+        array[a] = array[b]
+        array[b] = c
+      }
     }
   }
- 
-  return array
+
+  console.log(array)
 }
 
-const sorted = selectionSort()
-console.log(sorted) 
+selectionSort()
