@@ -10,22 +10,22 @@ function Socket(voltage) {
 }
 
 // Adapter
-function AdaptedDevice(name, requiredVoltage, socket) {
-	this.name = name
-	this.requiredVoltage = requiredVoltage
+function Adapter(device, socket) {
+	this.device = device
 	this.socket = socket
-	this.state = "Off"
 
-	this.run = function() {
-		try {
-			let voltsReceivedFromSocket = this.socket.getVolts() - (this.socket.getVolts() - requiredVoltage)
-			console.log(`Correct power supplied from the Socket through the Adapter! Device is: ${this.state}`) 
-			setTimeout(() => process.exit(), 2000)
+	this.getVolts = function() {
+		let volatageFromSocket = this.socket.getVolts(), deviceVoltageNeed = this.device.requiredVoltage
+		if(voltageFromSocket != deviceVoltageNeed) {
+			return voltageFromSocket - (voltageFromSocket - deviceVoltageNeed)	
 		}
-		catch(error) {
-			process.exit()
+		else {
+			return voltageFromSocket
 		}
 	}
+
+	this.setDevice = function(device) { this.device = device }
+	this.setSocket = function(socket) { this.socket = socket }
 }
 
 // Target 
