@@ -4,28 +4,21 @@
 // Adaptee
 function Socket(voltage) {
 	this.voltage = voltage
-	this.getVolts = function() {
-		return this.voltage
-	}
 }
 
 // Adapter
-function Adapter(device, socket) {
-	this.device = device
-	this.socket = socket
+function Adapter(resistanceOhms) {
+	this.resistanceOhms = resistanceOhms
 
-	this.getVolts = function() {
-		let volatageFromSocket = this.socket.getVolts(), deviceVoltageNeed = this.device.requiredVoltage
+	this.getVolts = function(socket, device) {
+		let voltageFromSocket = socket.voltage, deviceVoltageNeed = device.requiredVoltage
 		if(voltageFromSocket != deviceVoltageNeed) {
-			return voltageFromSocket - (voltageFromSocket - deviceVoltageNeed)	
+			return voltageFromSocket - this.resistanceOhms
 		}
 		else {
 			return voltageFromSocket
 		}
 	}
-
-	this.setDevice = function(device) { this.device = device }
-	this.setSocket = function(socket) { this.socket = socket }
 }
 
 // Target 
@@ -34,26 +27,41 @@ function Device(name, requiredVoltage) {
 	this.requiredVoltage = requiredVoltage
 	this.state = "Off"
 
-	this.run = function(socket) {
-		try {
-			if(socket.getVolts() != requiredVoltage) {
-				throw new Error("Incorrect voltage supplied to this Device! Unplugging!")
-			}
-			else {
-				console.log(`Correct power supplied from 
-				the Socket through the Adapter! Device is: ${this.state}`)
-				setTimeout(() => process.exit(), 2000)
-			}
+	this.run = function(socket, adapter) {
+		console.log(`\nCommencing Startup of device: ${this.name}`)
+		console.log(`This device has a Voltage Requirement of: ${this.requiredVoltage}`)
+		console.log(`The desired Socket has a Voltage Output of: ${socket.voltage}`)
+		console.log(`The supplied Adapter has a Resistance of: ${adapter.resistanceOhms}`)
+		console.log(`Connecting to Socket through Adapter...\n`)
+
+		if(adapter.getVolts(socket, adapter) != requiredVoltage) {
+			console.log("Incorrect voltage supplied to this Device! Unplugging!\n")
 		}
-		catch(error) {
-			process.exit()
+		else {
+			this.state = "On"
+			console.log(`Correct power supplied from the Socket through the Adapter! Device is: ${this.state}`)
 		}
 	}
 }
 
 // Client
-let sockets = [ new Socket(120), new Socket(240) ]
-// let adaptedDevices = [ new AdaptedDevices(120), new Adapter(240, 40) ] 
-let devices = [ new Device("Laptop", 50), new Device("Phone", 40) ]
+let sockets = [ 
+	new Socket(120), 
+	new Socket(240) 
+]
 
+let devices = [ 
+	new Device("Laptop", 50), 
+	new Device("Phone", 40) 
+]
+
+let adapters = [ 
+	new Adapter(70),
+	new Adapter(50)
+]
+
+// Demonstate the effect of running different Devices, Adapters, and Sockets with each other
+devices.forEach(device => adapters.forEach(adapter => sockets.forEach(socket => device.run(socket, adapter)))) 
+console.log(`END\n`)
+process.exit()
 
